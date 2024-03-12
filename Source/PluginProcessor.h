@@ -166,9 +166,13 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
 using Filter = juce::dsp::IIR::Filter<float>;
 
+using LRFilter = juce::dsp::LinkwitzRileyFilter<float>;
+
 using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
 
 using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+
+using BandChain = juce::dsp::ProcessorChain<LRFilter, LRFilter>;
 
 enum ChainPositions
 {
@@ -218,6 +222,20 @@ void updateCutFilter(ChainType& chain,
         update<0>(chain, coefficients);
     }
     }
+}
+
+inline auto makeLowCutFilter2(const float lowCutFreq, const int lowCutSlope, double sampleRate)
+{
+    return juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(lowCutFreq,
+        sampleRate,
+        2 * (lowCutSlope + 1));
+}
+
+inline auto makeHighCutFilter2(const float highCutFreq, const int highCutSlope, double sampleRate)
+{
+    return juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(highCutFreq,
+        sampleRate,
+        2 * (highCutSlope + 1));
 }
 
 inline auto makeLowCutFilter(const ChainSettings& chainSettings, double sampleRate)
@@ -285,11 +303,19 @@ public:
 private:
     MonoChain leftChain, rightChain;
 
+    // filter chains for multiband processing, cbf doing it properly atm
+
+    BandChain l1, r1, l2, r2, l3, r3, l4, r4, l5, r5, l6, r6, l7, r7, l8, r8, l9, r9, l10, r10;
+
+    // gonna need a bunch o
+
+    juce::AudioBuffer<float> b1, b2, b3, b4, b5, b6, b7, b8, b9, b10;
+
     void updatePeakFilter(const ChainSettings& chainSettings);
 
 
 
-
+    void setFilterBank(const ChainSettings& chainSettings);
     void updateLowCutFilters(const ChainSettings& chainSettings);
     void updateHighCutFilters(const ChainSettings& chainSettings);
 

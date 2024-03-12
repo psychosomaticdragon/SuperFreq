@@ -107,6 +107,39 @@ void SimpleEQAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBloc
     leftChain.prepare(spec);
     rightChain.prepare(spec);
 
+    l1.prepare(spec);
+    l2.prepare(spec);
+    l3.prepare(spec);
+    l4.prepare(spec);
+    l5.prepare(spec);
+    l6.prepare(spec);
+    l7.prepare(spec);
+    l8.prepare(spec);
+    l9.prepare(spec);
+    l10.prepare(spec);
+
+    r1.prepare(spec);
+    r2.prepare(spec);
+    r3.prepare(spec);
+    r4.prepare(spec);
+    r5.prepare(spec);
+    r6.prepare(spec);
+    r7.prepare(spec);
+    r8.prepare(spec);
+    r9.prepare(spec);
+    r10.prepare(spec);
+
+    b1.setSize(2, samplesPerBlock, false, true, true);
+    b2.setSize(2, samplesPerBlock, false, true, true);
+    b3.setSize(2, samplesPerBlock, false, true, true);
+    b4.setSize(2, samplesPerBlock, false, true, true);
+    b5.setSize(2, samplesPerBlock, false, true, true);
+    b6.setSize(2, samplesPerBlock, false, true, true);
+    b7.setSize(2, samplesPerBlock, false, true, true);
+    b8.setSize(2, samplesPerBlock, false, true, true);
+    b9.setSize(2, samplesPerBlock, false, true, true);
+    b10.setSize(2, samplesPerBlock, false, true, true);
+
     updateFilters();
 
     leftChannelFifo.prepare(samplesPerBlock);
@@ -164,7 +197,49 @@ void SimpleEQAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     // when they first compile a plugin, but obviously you don't need to keep
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+    {
         buffer.clear(i, 0, buffer.getNumSamples());
+
+        b1.clear();
+        b1.setSize(2, buffer.getNumSamples(), false, true, true);
+        b1.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
+
+        b2.clear();
+        b2.setSize(2, buffer.getNumSamples(), false, true, true);
+        b2.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
+
+        b3.clear();
+        b3.setSize(2, buffer.getNumSamples(), false, true, true);
+        b3.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
+
+        b4.clear();
+        b4.setSize(2, buffer.getNumSamples(), false, true, true);
+        b4.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
+
+        b5.clear();
+        b5.setSize(2, buffer.getNumSamples(), false, true, true);
+        b5.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
+
+        b6.clear();
+        b6.setSize(2, buffer.getNumSamples(), false, true, true);
+        b6.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
+
+        b7.clear();
+        b7.setSize(2, buffer.getNumSamples(), false, true, true);
+        b7.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
+
+        b8.clear();
+        b8.setSize(2, buffer.getNumSamples(), false, true, true);
+        b8.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
+
+        b9.clear();
+        b9.setSize(2, buffer.getNumSamples(), false, true, true);
+        b9.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
+
+        b10.clear();
+        b10.setSize(2, buffer.getNumSamples(), false, true, true);
+        b10.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
+    }
 
     updateFilters();
 
@@ -179,6 +254,8 @@ void SimpleEQAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     //
     //    juce::dsp::ProcessContextReplacing<float> stereoContext(block);
     //    osc.process(stereoContext);
+
+
 
     auto leftBlock = block.getSingleChannelBlock(0);
     auto rightBlock = block.getSingleChannelBlock(1);
@@ -270,6 +347,16 @@ void SimpleEQAudioProcessor::updatePeakFilter(const ChainSettings& chainSettings
 void updateCoefficients(Coefficients& old, const Coefficients& replacements)
 {
     *old = *replacements;
+}
+
+
+void SimpleEQAudioProcessor::setFilterBank(const ChainSettings& chainSettings)
+{
+    auto& l1lc = l1.get<0>();
+    auto& l1hc = l1.get<1>();
+    l1lc.setType(juce::dsp::LinkwitzRileyFilterType(0));
+    l1lc.setCutoffFrequency(20.f);
+    l1hc.setType(juce::dsp::LinkwitzRileyFilterType(1));
 }
 
 void SimpleEQAudioProcessor::updateLowCutFilters(const ChainSettings& chainSettings)
