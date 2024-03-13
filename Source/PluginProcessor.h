@@ -168,11 +168,17 @@ using Filter = juce::dsp::IIR::Filter<float>;
 
 using LRFilter = juce::dsp::LinkwitzRileyFilter<float>;
 
+using BFilter = juce::dsp::BallisticsFilter<float>;
+
 using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
 
 using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
 
 using BandChain = juce::dsp::ProcessorChain<LRFilter, LRFilter>;
+
+using envChain = juce::dsp::ProcessorChain<BFilter>;
+
+using eqChain = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter>;
 
 enum ChainPositions
 {
@@ -302,19 +308,22 @@ public:
     SingleChannelSampleFifo<BlockType> rightChannelFifo{ Channel::Right };
 private:
     MonoChain leftChain, rightChain;
+    eqChain leftEQ, rightEQ;
 
     // filter chains for multiband processing, cbf doing it properly atm
 
-    BandChain l1, r1, l2, r2, l3, r3, l4, r4, l5, r5, l6, r6, l7, r7, l8, r8, l9, r9, l10, r10;
-
+    BandChain e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11;
+    envChain arm, ar1, ar2, ar3, ar4, ar5, ar6, ar7, ar8, ar9, ar10, ar11;
     // gonna need a bunch o
 
-    juce::AudioBuffer<float> b1, b2, b3, b4, b5, b6, b7, b8, b9, b10;
+    juce::AudioBuffer<float> b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11;
+    juce::AudioBuffer<float> monobuffer;
 
+    void setEQ(const ChainSettings& chainSettings);
     void updatePeakFilter(const ChainSettings& chainSettings);
 
 
-
+    void setFilterBallistics(const ChainSettings& chainSettings);
     void setFilterBank(const ChainSettings& chainSettings);
     void updateLowCutFilters(const ChainSettings& chainSettings);
     void updateHighCutFilters(const ChainSettings& chainSettings);
